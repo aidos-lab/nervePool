@@ -27,7 +27,7 @@ S. McGuire, E. Munch, and M. Hirn. NervePool: A Simplicial Pooling Layer, 2023.
   author = {McGuire, Sarah and Munch, Elizabeth and Hirn, Matthew},
   year = {2023},
   archiveprefix = {arXiv},
-  eprint = {2222:2222},
-  url = {https://arxiv.org/abs/},
+  eprint = {####:#####},
+  url = {https://arxiv.org/abs/####:#####},
 }
 ```
