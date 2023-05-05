@@ -10,7 +10,7 @@ Paper: [`arXiv:####.#####`]
 
 
   ### Code
-  The notebook `examples_notebook.ipynb` walks through a series of examples, using NervePool to pool various simplicicial compelxes, for different choices of input vertex cover.
+  The notebook `examples_notebook.ipynb` walks through a series of examples, using NervePool to pool various simplicial compelxes, for different choices of input vertex cover.
   Each simplicial complex is an object defined by `complex.py` and the collection of functions that perform the pooling on a complex are found in `pooling_functions.py`.
  
   
