@@ -18,7 +18,7 @@ Paper: [`arXiv:####.#####`]
 
 ## License & citation
 
-The content of this repository is released under the terms of the [MIT license](LICENSE.txt).
+The content of this repository is released under the terms of the [MIT license](LICENSE).
 S. McGuire, E. Munch, and M. Hirn. NervePool: A Simplicial Pooling Layer, 2023. 
 
 ```
