@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-### Functions to cascade information from input vertex cluster matrix S to higher dim-simplices
+### Functions to cascade information from input vertex cluster matrix S to higher dimensional simplices
 
 
 import numpy as np
@@ -74,61 +74,7 @@ def cascade_all(S00,A0,A1,vertex_list,edge_list,triangle_list,tetrahedron_list):
     return S10,S20,S30,S01,S11,S21,S31,S02,S12,S22,S32,v_list_new,e_list_new,t_list_new
 
 
-#-----------------------------
-# Function (+helpers) to construct an oriented BOUNDARY MATRIX
-#-----------------------------------------------
-def orientation(tau,sigma):
-    #print (tau,' in ' ,cyclic_perms(sigma),'?')
-    if list(tau.split(',')) in cyclic_perms(list(sigma.split(','))):
-        value = 1
-    elif list(tau.split(',')) in cyclic_perms_neg(list(sigma.split(','))):
-        value = -1
-    else:
-        value = 0
-    return value
-def cyclic_perms_neg(a):
-    n = len(a)
-    B = [[a[j - i] for i in range(n)] for j in range(n)]
-    sx_list = []
-    for b in B:        
-        sx_list.append(b[0:-1])
-        sx_list.append(b[1:])    
-    return sx_list
-def cyclic_perms(a):
-    n = len(a)
-    B = [[a[i - j] for i in range(n)] for j in range(n)]
-    sx_list = []
-    for b in B:        
-        sx_list.append(b[0:-1])
-        sx_list.append(b[1:])    
-    return sx_list
-#------------------------------------------------------------------------
-def signed_boundary(sx_list, sx_list_low):
-    n = len(sx_list)
-    n_low = len(sx_list_low)
-    dim_p = len(sx_list[0].split(','))-1
-    dim_p_low = dim_p-1
-    Bp = np.zeros([n_low,n])
-    
-    #B1
-    if dim_p==1:
-        for v in range(n_low):
-            for e in range(n):
-                if (str(v) == sx_list[e].split(',')[0]):
-                    Bp[v,e] = -1
-                elif (str(v) == sx_list[e].split(',')[1]):
-                    Bp[v,e] = 1
-    #Bp for p>1
-    if dim_p > 1:
-        for t in range(n_low):
-            tau = sx_list_low[t]
-            for s in range(n):
-                sigma = sx_list[s]
-                #print(tau, sigma, orientation(tau,sigma))
-                Bp[t,s] = orientation(tau,sigma)
-        
-    return Bp
-#--------------------------------------------------------------------------
+
 
 
 #-----------------------------------------------
