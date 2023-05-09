@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## Functions to cascade information from diffPool S cluster assignment matrix to higher dim-simplices
-
-# In[2]:
+### Functions to cascade information from input vertex cluster matrix S to higher dim-simplices
 
 
 import numpy as np
