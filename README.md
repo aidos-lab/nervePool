@@ -6,8 +6,8 @@
 > NervePool builds on the learned vertex cluster assignments and extends to coarsening of higher dimensional simplices in a deterministic fashion. 
 > While in practice, the pooling operations are computed via a series of matrix operations, the topological motivation is a set-theoretic construction based on unions of stars of simplices and the nerve complex.
 <br/>
-Paper: [`arXiv:####.#####`]
 
+[//]: # (Paper: [`arXiv:####.#####`])
 
   ### Code
   The notebook `examples_notebook.ipynb` walks through a series of examples, using NervePool to pool various simplicial compelxes, for different choices of input vertex cover.
