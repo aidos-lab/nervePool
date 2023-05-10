@@ -424,7 +424,8 @@ class SComplex:
         """
         print('Visualizing ADJACENCY MATRICES...')
         dim = self.dim
-        fig, ax = plt.subplots(nrows=1, ncols = dim, figsize = (8,8))
+        #fig, ax = plt.subplots(nrows=1, ncols = dim, figsize = (8,8))
+        fig, ax = plt.subplots(nrows=1, ncols = dim)
         simplices = self.simplices
         for f in range(dim):
             if f==0:
