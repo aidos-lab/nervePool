@@ -7,7 +7,8 @@
 > While in practice, the pooling operations are computed via a series of matrix operations, the topological motivation is a set-theoretic construction based on unions of stars of simplices and the nerve complex.
 <br/>
 
-[//]: # (Paper: [`arXiv:####.#####`])
+
+[Paper: arXiv](https://arxiv.org/abs/2305.06315)
 
   ### Code
   The notebook `complex_examples.ipynb` walks through a series of examples, using NervePool to pool various simplicial compelxes, for different choices of input vertex cover.
@@ -22,12 +23,12 @@ The content of this repository is released under the terms of the [MIT license](
 S. McGuire, E. Munch, and M. Hirn. NervePool: A Simplicial Pooling Layer, 2023. 
 
 ```
-@article{mcguire2023nervePool,
+@article{mcguire2023nervepool,
   title = {NervePool: A Simplicial Pooling Layer},
   author = {McGuire, Sarah and Munch, Elizabeth and Hirn, Matthew},
   year = {2023},
   archiveprefix = {arXiv},
-  eprint = {####:#####},
-  url = {https://arxiv.org/abs/####:#####},
+  eprint = {2305.06315},
+  url = {https://arxiv.org/abs/2305.06315},
 }
 ```
