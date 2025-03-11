@@ -8,20 +8,7 @@ import numpy as np
 
 
 def drawComplex(SC, S0=None):
-    """
-    Draw simplicial complex from a list of simplices
-
-    Input args:
-    ----
-        simplex_list: list of lists of characters
-
-    Adapted from:
-    ----------
-    [1] https://github.com/iaciac/py-draw-simplicial-complex/blob/master/Draw%202d%20simplicial%20complex.ipynb
-
-    """
     print("Drawing simplicial complex...")
-    # print('Simplices: \n', SC.simplices)
     simplex_list = SC.simplices
     dim = SC.dim
 
@@ -150,6 +137,7 @@ def drawComplex(SC, S0=None):
         options = {"edgecolors": "tab:gray", "node_size": 800, "alpha": 0.5}
         nx.draw_networkx_nodes(G, pos, nodelist=G.nodes, node_color=values, **options)
 
+    plt.show()
     return
 
 
@@ -190,6 +178,7 @@ def visualizeA(SC):
         for (i, j), z in np.ndenumerate(adj):
             ax[f].text(j, i, "{:0.3f}".format(z), ha="center", va="center")
         plt.tight_layout()
+    plt.show()
     return
 
 
@@ -236,4 +225,5 @@ def visualizeB(SC):
         for (i, j), z in np.ndenumerate(bd):
             ax[f].text(j, i, "{:0.3f}".format(z), ha="center", va="center")
         plt.tight_layout()
+    plt.show()
     return

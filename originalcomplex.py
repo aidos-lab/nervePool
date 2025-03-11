@@ -3,7 +3,6 @@ Simplicial Complex class with auxillary functions for pooling
 
 Sarah McGuire 2022
 """
-
 import string
 from math import comb
 
@@ -15,8 +14,6 @@ class SComplex:
         self.simplices = None
         self.boundaries = None
 
-
-        # List of simplices
         for info in args:
             if isinstance(info, list):  # Input info is the list of simplices
                 if len(info) == 0:
@@ -31,10 +28,6 @@ class SComplex:
                         f"expected {dim + 1}, but received {len(info)}"
                     )
                 self.simplices = {i: info[i] for i in range(dim + 1)}
-                self.nodes = self.simplices.get(0,None)
-                self.edges = self.simplices.get(1,None)
-                self.faces = self.simplices.get(2,None)
-                self.tetra = self.simplices.get(3,None)
                 self.nodes = info[0]
                 if dim >= 1:
                     self.edges = info[1]
@@ -48,13 +41,7 @@ class SComplex:
                     self.tetra = info[3]
                 else:
                     self.tetra = None
-            
-            # Dictionary with simplices 
-            # Attributes nodes, edges, face and tetrahedra. 
-            # Sets the dim attributes
 
-
-            # Array of boundary maps
             elif isinstance(
                 info, np.ndarray
             ):  # Input info is the array of boundary matrices
@@ -69,14 +56,19 @@ class SComplex:
                         f"expected {dim}, but received {len(info)}"
                     )
                 self.boundaries = {i + 1: info[i] for i in range(dim)}
-                self.B1 = self.boundaries.get(1,None)
-                self.B2 = self.boundaries.get(2,None)
-                self.B3 = self.boundaries.get(3,None)
-
-            
-            # Sets the boundary properties
-            # Attributes B1 B2 B3
-            # Sets the dim attributes
+                self.B1 = info[0]
+                if dim >= 1:
+                    self.B2 = info[1]
+                else:
+                    self.B2 = None
+                if dim >= 2:
+                    self.B3 = info[2]
+                else:
+                    self.B3 = None
+            else:
+                raise ValueError(
+                    "Input arg type not supported. Use list of simplices or np.ndarray of boundary matrices to define the simplicial complex."
+                )
 
         self.dim = dim
         self.label = label
