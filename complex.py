@@ -11,75 +11,34 @@ import numpy as np
 
 
 class SComplex:
-    def __init__(self, *args, dim: int = None, label: int = None):
+    def __init__(self, *args, label: int = None):
         self.simplices = None
         self.boundaries = None
-
 
         # List of simplices
         for info in args:
             if isinstance(info, list):  # Input info is the list of simplices
-                if len(info) == 0:
-                    raise ValueError(
-                        "List of simplices must contain at least one simplex."
-                    )
-                if dim is None:
-                    dim = len(info) - 1
-                if len(info) < dim + 1:
-                    raise ValueError(
-                        f"Missing simplices for the specified complex dim, "
-                        f"expected {dim + 1}, but received {len(info)}"
-                    )
-                self.simplices = {i: info[i] for i in range(dim + 1)}
+                self.dim = len(info) - 1
+                self.simplices = {i: info[i] for i in range(self.dim + 1)}
                 self.nodes = self.simplices.get(0,None)
                 self.edges = self.simplices.get(1,None)
-                self.faces = self.simplices.get(2,None)
+                self.cycles = self.simplices.get(2,None)
                 self.tetra = self.simplices.get(3,None)
                 self.nodes = info[0]
-                if dim >= 1:
-                    self.edges = info[1]
-                else:
-                    self.edges = None
-                if dim >= 2:
-                    self.cycles = info[2]
-                else:
-                    self.cycles = None
-                if dim >= 3:
-                    self.tetra = info[3]
-                else:
-                    self.tetra = None
             
-            # Dictionary with simplices 
-            # Attributes nodes, edges, face and tetrahedra. 
-            # Sets the dim attributes
-
-
             # Array of boundary maps
-            elif isinstance(
-                info, np.ndarray
-            ):  # Input info is the array of boundary matrices
-
-                if len(info) == 0:
-                    raise ValueError("Array of boundaries must contain at least B1.")
-                if dim is None:
-                    dim = len(info)
-                if len(info) < dim:
-                    raise ValueError(
-                        f"Missing simplices for the specified complex dim, "
-                        f"expected {dim}, but received {len(info)}"
-                    )
-                self.boundaries = {i + 1: info[i] for i in range(dim)}
+            elif isinstance(info, np.ndarray): 
+                self.dim = len(info)
+                self.boundaries = {i + 1: info[i] for i in range(self.dim)}
                 self.B1 = self.boundaries.get(1,None)
                 self.B2 = self.boundaries.get(2,None)
                 self.B3 = self.boundaries.get(3,None)
 
-            
-            # Sets the boundary properties
-            # Attributes B1 B2 B3
-            # Sets the dim attributes
-
-        self.dim = dim
         self.label = label
+
+        print(self.boundaries)
+        if self.boundaries is not None:
+            print(list(self.boundaries.keys()))
 
         self._buildBoundaries()
         # Assuming non-oriented boundary matrices
@@ -486,29 +445,15 @@ def pool_complex(SC, S0):
     S1, S2, S3 = right_function(col0, SC)
     # print('S matrices are:', S1,'\n', S2, '\n', S3)
     # Use diagonal sub-blocks f S to pool boundary matrices
-    if S1 is None:
-        B1_new = None
-    else:
-        B1_new = np.abs(np.matmul(np.matmul(S0.T, SC.B1), S1))
-    if S2 is None:
-        B2_new = None
-    else:
-        B2_new = np.abs(np.matmul(np.matmul(S1.T, SC.B2), S2))
-    if S3 is None:
-        B3_new = None
-    else:
-        B3_new = np.abs(np.matmul(np.matmul(S2.T, SC.B3), S3))
 
-    # Pooled complex dimension
-    if B1_new is None:
-        newdim = 0
-    elif B2_new is None:
-        newdim = 1
-    elif B3_new is None:
-        newdim = 2
-    else:
-        newdim = 3
+    BList = []
+    if S1 is not None:
+        BList.append(np.abs(np.matmul(np.matmul(S0.T, SC.B1), S1)))
+    if S2 is not None:
+        BList.append(np.abs(np.matmul(np.matmul(S1.T, SC.B2), S2)))
+    if S3 is not None:
+        BList.append(np.abs(np.matmul(np.matmul(S2.T, SC.B3), S3)))
 
     # Use new boundary matrices to construct pooled complex ... UNFINISHED
-    Bds_new = np.array([B1_new, B2_new, B3_new], dtype=object)
-    return SComplex(Bds_new, dim=newdim)
+    Bds_new = np.array(BList, dtype=object)
+    return SComplex(Bds_new)

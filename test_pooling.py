@@ -82,6 +82,10 @@ if SC1_pooled.edges is not None:
     print("Testing Edges")
     all(x == y for x, y in zip(SC1_pooled.edges, OSC1_pooled.edges))
 
+if SC1_pooled.cycles is not None:
+    print("Testing Cycles")
+    all(x == y for x, y in zip(SC1_pooled.cycles, OSC1_pooled.cycles))
+
 if SC1_pooled.tetra is not None:
     print("Testing Tetra")
     all(x == y for x, y in zip(SC1_pooled.tetra, OSC1_pooled.tetra))
