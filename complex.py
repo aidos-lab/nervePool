@@ -7,7 +7,7 @@ from math import comb
 
 import numpy as np
 
-from boundary import buildBoundaries, buildSimplexListADJ, constructAdj
+from boundary import buildBoundaries, buildSimplexListADJ, constructAdj, newconstructAdj
 
 
 class SComplex:
@@ -26,7 +26,9 @@ class SComplex:
             self.cycles = self.simplices.get(2, None)
             self.tetra = self.simplices.get(3, None)
             self = buildBoundaries(self)
-            self = constructAdj(self)
+            self.A0, self.A1, self.A2 = newconstructAdj(
+                self.B1, self.B2, self.B3, self.dim
+            )
             # Assuming non-oriented boundary matrices
             for key in self.boundaries.keys():
                 self.boundaries[key] = abs(self.boundaries[key])
@@ -42,7 +44,10 @@ class SComplex:
             # Assuming non-oriented boundary matrices
             for key in self.boundaries.keys():
                 self.boundaries[key] = abs(self.boundaries[key])
-            self = constructAdj(self)
+            # self = constructAdj(self)
+            self.A0, self.A1, self.A2 = newconstructAdj(
+                self.B1, self.B2, self.B3, self.dim
+            )
             self = buildSimplexListADJ(self)
 
 

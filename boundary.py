@@ -3,6 +3,25 @@ import string
 import numpy as np
 
 
+def newconstructAdj(B1, B2, B3, dim):
+    if dim >= 1:
+        D0 = np.diag(np.sum(np.abs(B1), axis=1))
+        A0 = np.abs(D0 - np.matmul(B1, B1.T))
+    else:
+        A0 = None
+    if dim >= 2:
+        D1 = np.diag(np.sum(np.abs(B2), axis=1))
+        A1 = np.abs(D1 - np.matmul(B2, B2.T))
+    else:
+        A1 = None
+    if dim >= 3:
+        D2 = np.diag(np.sum(np.abs(B3), axis=1))
+        A2 = np.abs(D2 - np.matmul(B3, B3.T))
+    else:
+        A2 = None
+    return A0, A1, A2
+
+
 def constructAdj(scomplex):
     if scomplex.dim >= 1:
         D0 = np.diag(np.sum(np.abs(scomplex.B1), axis=1))
