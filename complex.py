@@ -11,40 +11,39 @@ from boundary import buildBoundaries, buildSimplexListADJ, constructAdj
 
 
 class SComplex:
-    def __init__(self, *args, label: int | None = None):
+    def __init__(self, simplices=None, boundaries=None, label: int | None = None):
+
         self.simplices = None
         self.boundaries = None
         self.label = label
 
         # List of simplices
-        for info in args:
-            if isinstance(info, list):  # Input info is the list of simplices
-                self.dim = len(info) - 1
-                self.simplices = {i: info[i] for i in range(self.dim + 1)}
-                self.nodes = self.simplices.get(0, None)
-                self.edges = self.simplices.get(1, None)
-                self.cycles = self.simplices.get(2, None)
-                self.tetra = self.simplices.get(3, None)
-                self.nodes = info[0]
-                self = buildBoundaries(self)
-                self = constructAdj(self)
-                # Assuming non-oriented boundary matrices
-                for key in self.boundaries.keys():
-                    self.boundaries[key] = abs(self.boundaries[key])
+        if simplices is not None:
+            self.dim = len(simplices) - 1
+            self.simplices = {i: simplices[i] for i in range(self.dim + 1)}
+            self.nodes = self.simplices.get(0, None)
+            self.edges = self.simplices.get(1, None)
+            self.cycles = self.simplices.get(2, None)
+            self.tetra = self.simplices.get(3, None)
+            self = buildBoundaries(self)
+            self = constructAdj(self)
+            # Assuming non-oriented boundary matrices
+            for key in self.boundaries.keys():
+                self.boundaries[key] = abs(self.boundaries[key])
 
             # Array of boundary maps
-            elif isinstance(info, tuple):
-                self.dim = len(info)
-                self.boundaries = {i + 1: info[i] for i in range(self.dim)}
-                self.B1 = self.boundaries.get(1, None)
-                self.B2 = self.boundaries.get(2, None)
-                self.B3 = self.boundaries.get(3, None)
+        if boundaries is not None:
+            self.dim = len(boundaries)
+            self.boundaries = {i + 1: boundaries[i] for i in range(self.dim)}
+            self.B1 = self.boundaries.get(1, None)
+            self.B2 = self.boundaries.get(2, None)
+            self.B3 = self.boundaries.get(3, None)
 
-                # Assuming non-oriented boundary matrices
-                for key in self.boundaries.keys():
-                    self.boundaries[key] = abs(self.boundaries[key])
-                self = constructAdj(self)
-                self = buildSimplexListADJ(self)
+            # Assuming non-oriented boundary matrices
+            for key in self.boundaries.keys():
+                self.boundaries[key] = abs(self.boundaries[key])
+            self = constructAdj(self)
+            self = buildSimplexListADJ(self)
 
 
 def right_function(Scol0, SC):
@@ -221,4 +220,4 @@ def pool_complex(SC, S0):
     # Use new boundary matrices to construct pooled complex ... UNFINISHED
     Bds_new = tuple(BList)
     print(Bds_new)
-    return SComplex(Bds_new)
+    return SComplex(boundaries=Bds_new)

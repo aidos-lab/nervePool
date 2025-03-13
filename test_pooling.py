@@ -50,7 +50,7 @@ S0 = np.array(
 simplices = list([vertex_list, edge_list, triangle_list, tetrahedron_list])
 
 OSC1 = OriginalSComplex(simplices)
-SC1 = SComplex(simplices)
+SC1 = SComplex(simplices=simplices)
 
 np.testing.assert_equal(SC1.B1, OSC1.B1, verbose=True)
 np.testing.assert_equal(SC1.B2, OSC1.B2, verbose=True)

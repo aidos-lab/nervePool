@@ -4,32 +4,19 @@ import numpy as np
 
 
 def constructAdj(scomplex):
-    """
-    Use boundary matrices to construct adjacency matrices via A = |D - (B * B^T)| or A = B * B^T
-    """
-    scomplex = scomplex
-    # A0
     if scomplex.dim >= 1:
         D0 = np.diag(np.sum(np.abs(scomplex.B1), axis=1))
-        # print('D0 is:', D0)
         scomplex.A0 = np.abs(D0 - np.matmul(scomplex.B1, scomplex.B1.T))
-        # scomplex.A0 = np.matmul(scomplex.B1,scomplex.B1.T)
     else:
         scomplex.A0 = None
-    # A1
     if scomplex.dim >= 2:
         D1 = np.diag(np.sum(np.abs(scomplex.B2), axis=1))
-        # print('D1 is:', D1)
         scomplex.A1 = np.abs(D1 - np.matmul(scomplex.B2, scomplex.B2.T))
-        # scomplex.A1 = np.matmul(scomplex.B2,scomplex.B2.T)
     else:
         scomplex.A1 = None
-    # A2
     if scomplex.dim >= 3:
         D2 = np.diag(np.sum(np.abs(scomplex.B3), axis=1))
-        # print('D2 is:', D2)
         scomplex.A2 = np.abs(D2 - np.matmul(scomplex.B3, scomplex.B3.T))
-        # scomplex.A2 = np.matmul(scomplex.B3,scomplex.B3.T)
     else:
         scomplex.A2 = None
     return scomplex
