@@ -7,7 +7,13 @@ from math import comb
 
 import numpy as np
 
-from boundary import buildBoundaries, buildSimplexListADJ, constructAdj, newconstructAdj
+from boundary import (
+    Boundaries,
+    Simplices,
+    adjacency_from_boundaries,
+    boundary_from_simplices,
+    simplices_from_adjacencies,
+)
 
 
 class SComplex:
@@ -20,35 +26,26 @@ class SComplex:
         # List of simplices
         if simplices is not None:
             self.dim = len(simplices) - 1
-            self.simplices = {i: simplices[i] for i in range(self.dim + 1)}
-            self.nodes = self.simplices.get(0, None)
-            self.edges = self.simplices.get(1, None)
-            self.cycles = self.simplices.get(2, None)
-            self.tetra = self.simplices.get(3, None)
-            self = buildBoundaries(self)
-            self.A0, self.A1, self.A2 = newconstructAdj(
-                self.B1, self.B2, self.B3, self.dim
-            )
-            # Assuming non-oriented boundary matrices
-            for key in self.boundaries.keys():
-                self.boundaries[key] = abs(self.boundaries[key])
+            self.simplices = Simplices(*simplices)
+            self.boundaries = boundary_from_simplices(self.simplices, self.dim)
 
-            # Array of boundary maps
+            self.adjacencies = adjacency_from_boundaries(self.boundaries, self.dim)
+            # # Assuming non-oriented boundary matrices
+            # for key in self.boundaries.keys():
+            #     self.boundaries[key] = abs(self.boundaries[key])
+
+        # Array of boundary maps
         if boundaries is not None:
             self.dim = len(boundaries)
-            self.boundaries = {i + 1: boundaries[i] for i in range(self.dim)}
-            self.B1 = self.boundaries.get(1, None)
-            self.B2 = self.boundaries.get(2, None)
-            self.B3 = self.boundaries.get(3, None)
+            self.boundaries = Boundaries(*boundaries)
 
-            # Assuming non-oriented boundary matrices
-            for key in self.boundaries.keys():
-                self.boundaries[key] = abs(self.boundaries[key])
-            # self = constructAdj(self)
-            self.A0, self.A1, self.A2 = newconstructAdj(
-                self.B1, self.B2, self.B3, self.dim
-            )
-            self = buildSimplexListADJ(self)
+            # # Assuming non-oriented boundary matrices
+            # for key in self.boundaries.keys():
+            #     self.boundaries[key] = abs(self.boundaries[key])
+
+            self.adjacencies = adjacency_from_boundaries(self.boundaries, self.dim)
+            if self.simplices is None:
+                self.simplices = simplices_from_adjacencies(self.adjacencies, self.dim)
 
 
 def right_function(Scol0, SC):
@@ -72,7 +69,7 @@ def right_function(Scol0, SC):
 
     # New Cycles block column:
     # loop through all possible triples of meta vertices to get new cycle info
-    Scol0a = Scol0[len(SC.edges) :, :]
+    Scol0a = Scol0[len(SC.simplices.edges) :, :]
     Scol2 = np.zeros([Scol0a.shape[0], comb(n_nodes_new, 3)])
     col = 0
     for i in range(0, n_nodes_new):
@@ -85,7 +82,7 @@ def right_function(Scol0, SC):
 
     # New Tetra block column:
     # loop through all possible quadruplets of meta vertices to get new tetra info
-    Scol0b = Scol0a[len(SC.cycles) :, :]
+    Scol0b = Scol0a[len(SC.simplices.cycles) :, :]
     Scol3 = np.zeros([Scol0b.shape[0], comb(n_nodes_new, 4)])
     col = 0
     for i in range(0, n_nodes_new):
@@ -100,16 +97,16 @@ def right_function(Scol0, SC):
     Scol3 = np.delete(Scol3, np.argwhere(np.all(Scol3[..., :] == 0, axis=0)), axis=1)
     # Normalize rows of S and select the diagonal sub-blocks for pooling
     if SC.dim >= 1 and Scol1.size != 0:
-        S1 = Scol1[: len(SC.edges), :]
-        Srow1 = np.concatenate((Scol0[: len(SC.edges)], S1), axis=1)
+        S1 = Scol1[: len(SC.simplices.edges), :]
+        Srow1 = np.concatenate((Scol0[: len(SC.simplices.edges)], S1), axis=1)
         Srow1_norm = Srow1 / Srow1.sum(axis=1)[:, np.newaxis]
         S1_norm = Srow1_norm[:, n_nodes_new:]
     else:
         S1_norm = None
     if SC.dim >= 2 and Scol2.size != 0:
-        S2 = Scol2[: len(SC.cycles), :]
-        idx_start = len(SC.edges)
-        idx_end = idx_start + len(SC.cycles)
+        S2 = Scol2[: len(SC.simplices.cycles), :]
+        idx_start = len(SC.simplices.edges)
+        idx_end = idx_start + len(SC.simplices.cycles)
         Srow2 = np.concatenate(
             (Scol0[idx_start:idx_end], Scol1[idx_start:idx_end], S2), axis=1
         )
@@ -118,10 +115,16 @@ def right_function(Scol0, SC):
     else:
         S2_norm = None
     if SC.dim >= 3 and Scol3.size != 0:
-        S3 = Scol3[: len(SC.tetra), :]
-        idx_start = len(SC.cycles) + len(SC.edges)
+        S3 = Scol3[: len(SC.simplices.tetra), :]
+        idx_start = len(SC.simplices.cycles) + len(SC.simplices.edges)
         Srow3 = np.concatenate(
-            (Scol0[idx_start:], Scol1[idx_start:], Scol2[len(SC.cycles) :], S3), axis=1
+            (
+                Scol0[idx_start:],
+                Scol1[idx_start:],
+                Scol2[len(SC.simplices.cycles) :],
+                S3,
+            ),
+            axis=1,
         )
         Srow3_norm = Srow3 / Srow3.sum(axis=1)[:, np.newaxis]
         S3_norm = Srow3_norm[:, Scol0.shape[1] + Scol1.shape[1] + Scol2.shape[1] :]
@@ -141,31 +144,31 @@ def down_function(S0, SC):
     S01 = []
     S02 = []
     S03 = []
-    for e in SC.edges:
+    for e in SC.simplices.edges:
         edge_arr = np.zeros(n_new)
-        v0 = SC.nodes.index(e[0])
-        v1 = SC.nodes.index(e[1])
+        v0 = SC.simplices.nodes.index(e[0])
+        v1 = SC.simplices.nodes.index(e[1])
         for v in range(n_new):
             if S0[v0, v] > 0 or S0[v1, v] > 0:
                 edge_arr[v] = 1
         S01.append(edge_arr)
 
-    for c in SC.cycles:
+    for c in SC.simplices.cycles:
         cyc_arr = np.zeros(n_new)
-        v0 = SC.nodes.index(c[0])
-        v1 = SC.nodes.index(c[1])
-        v2 = SC.nodes.index(c[2])
+        v0 = SC.simplices.nodes.index(c[0])
+        v1 = SC.simplices.nodes.index(c[1])
+        v2 = SC.simplices.nodes.index(c[2])
         for v in range(n_new):
             if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0:
                 cyc_arr[v] = 1
         S02.append(cyc_arr)
 
-    for t in SC.tetra:
+    for t in SC.simplices.tetra:
         t_arr = np.zeros(n_new)
-        v0 = SC.nodes.index(t[0])
-        v1 = SC.nodes.index(t[1])
-        v2 = SC.nodes.index(t[2])
-        v3 = SC.nodes.index(t[3])
+        v0 = SC.simplices.nodes.index(t[0])
+        v1 = SC.simplices.nodes.index(t[1])
+        v2 = SC.simplices.nodes.index(t[2])
+        v3 = SC.simplices.nodes.index(t[3])
         for v in range(n_new):
             if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0 or S0[v3, v] > 0:
                 t_arr[v] = 1
@@ -202,10 +205,10 @@ def pool_complex(SC, S0):
     """
     if S0.shape[0] == 0 or S0.shape[1] == 0:
         raise ValueError("Vertex cluster assignment matrix must be of size |v|x|v|")
-    if S0.shape[0] != SC.A0.shape[0]:
+    if S0.shape[0] != SC.adjacencies.A0.shape[0]:
         raise ValueError(
             f"Vertex cluster assignment size must match the number of vertices of the complex, "
-            f"expected {SC.A0.shape}, but received {S0.shape}"
+            f"expected {SC.adjacencies.A0.shape}, but received {S0.shape}"
         )
 
     # Extend S0 to full S block matrix
@@ -216,11 +219,11 @@ def pool_complex(SC, S0):
 
     BList = []
     if S1 is not None:
-        BList.append(np.abs(np.matmul(np.matmul(S0.T, SC.B1), S1)))
+        BList.append(np.abs(np.matmul(np.matmul(S0.T, SC.boundaries.B1), S1)))
     if S2 is not None:
-        BList.append(np.abs(np.matmul(np.matmul(S1.T, SC.B2), S2)))
+        BList.append(np.abs(np.matmul(np.matmul(S1.T, SC.boundaries.B2), S2)))
     if S3 is not None:
-        BList.append(np.abs(np.matmul(np.matmul(S2.T, SC.B3), S3)))
+        BList.append(np.abs(np.matmul(np.matmul(S2.T, SC.boundaries.B3), S3)))
 
     # Use new boundary matrices to construct pooled complex ... UNFINISHED
     Bds_new = tuple(BList)

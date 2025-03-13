@@ -52,40 +52,40 @@ simplices = list([vertex_list, edge_list, triangle_list, tetrahedron_list])
 OSC1 = OriginalSComplex(simplices)
 SC1 = SComplex(simplices=simplices)
 
-np.testing.assert_equal(SC1.B1, OSC1.B1, verbose=True)
-np.testing.assert_equal(SC1.B2, OSC1.B2, verbose=True)
-np.testing.assert_equal(SC1.B3, OSC1.B3, verbose=True)
+np.testing.assert_equal(SC1.boundaries.B1, OSC1.B1, verbose=True)
+np.testing.assert_equal(SC1.boundaries.B2, OSC1.B2, verbose=True)
+np.testing.assert_equal(SC1.boundaries.B3, OSC1.B3, verbose=True)
 
 
 OSC1_pooled = original_pool_complex(OSC1, S0)
 SC1_pooled = pool_complex(SC1, S0)
 
-np.testing.assert_equal(SC1_pooled.B1, OSC1_pooled.B1, verbose=True)
-np.testing.assert_equal(SC1_pooled.B2, OSC1_pooled.B2, verbose=True)
-np.testing.assert_equal(SC1_pooled.B3, OSC1_pooled.B3, verbose=True)
+np.testing.assert_equal(SC1_pooled.boundaries.B1, OSC1_pooled.B1, verbose=True)
+np.testing.assert_equal(SC1_pooled.boundaries.B2, OSC1_pooled.B2, verbose=True)
+np.testing.assert_equal(SC1_pooled.boundaries.B3, OSC1_pooled.B3, verbose=True)
 
-if SC1_pooled.B1 is not None:
-    np.testing.assert_allclose(SC1_pooled.B1, OSC1_pooled.B1, verbose=True)
+if SC1_pooled.boundaries.B1 is not None:
+    np.testing.assert_allclose(SC1_pooled.boundaries.B1, OSC1_pooled.B1, verbose=True)
 
-if SC1_pooled.B2 is not None:
-    np.testing.assert_allclose(SC1_pooled.B2, OSC1_pooled.B2, verbose=True)
+if SC1_pooled.boundaries.B2 is not None:
+    np.testing.assert_allclose(SC1_pooled.boundaries.B2, OSC1_pooled.B2, verbose=True)
 
-if SC1_pooled.B3 is not None:
-    np.testing.assert_allclose(SC1_pooled.B3, OSC1_pooled.B3, verbose=True)
+if SC1_pooled.boundaries.B3 is not None:
+    np.testing.assert_allclose(SC1_pooled.boundaries.B3, OSC1_pooled.B3, verbose=True)
 
 
-if SC1_pooled.nodes is not None:
+if SC1_pooled.simplices.nodes is not None:
     print("Testing Nodes")
-    all(x == y for x, y in zip(SC1_pooled.nodes, OSC1_pooled.nodes))
+    all(x == y for x, y in zip(SC1_pooled.simplices.nodes, OSC1_pooled.nodes))
 
-if SC1_pooled.edges is not None:
+if SC1_pooled.simplices.edges is not None:
     print("Testing Edges")
-    all(x == y for x, y in zip(SC1_pooled.edges, OSC1_pooled.edges))
+    all(x == y for x, y in zip(SC1_pooled.simplices.edges, OSC1_pooled.edges))
 
-if SC1_pooled.cycles is not None:
+if SC1_pooled.simplices.cycles is not None:
     print("Testing Cycles")
-    all(x == y for x, y in zip(SC1_pooled.cycles, OSC1_pooled.cycles))
+    all(x == y for x, y in zip(SC1_pooled.simplices.cycles, OSC1_pooled.cycles))
 
-if SC1_pooled.tetra is not None:
+if SC1_pooled.simplices.tetra is not None:
     print("Testing Tetra")
     all(x == y for x, y in zip(SC1_pooled.tetra, OSC1_pooled.tetra))
