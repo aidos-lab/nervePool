@@ -18,34 +18,28 @@ from boundary import (
 
 class SComplex:
     def __init__(self, simplices=None, boundaries=None, label: int | None = None):
-
-        self.simplices = None
-        self.boundaries = None
         self.label = label
+        if simplices is not None and boundaries is not None:
+            raise ValueError("Something went wrong")
 
         # List of simplices
         if simplices is not None:
             self.dim = len(simplices) - 1
             self.simplices = Simplices(*simplices)
             self.boundaries = boundary_from_simplices(self.simplices, self.dim)
-
             self.adjacencies = adjacency_from_boundaries(self.boundaries, self.dim)
-            # # Assuming non-oriented boundary matrices
-            # for key in self.boundaries.keys():
-            #     self.boundaries[key] = abs(self.boundaries[key])
+
+            # TODO: Make boundaries non-oriented.
 
         # Array of boundary maps
         if boundaries is not None:
             self.dim = len(boundaries)
             self.boundaries = Boundaries(*boundaries)
 
-            # # Assuming non-oriented boundary matrices
-            # for key in self.boundaries.keys():
-            #     self.boundaries[key] = abs(self.boundaries[key])
+            # TODO: Make boundaries non-oriented.
 
             self.adjacencies = adjacency_from_boundaries(self.boundaries, self.dim)
-            if self.simplices is None:
-                self.simplices = simplices_from_adjacencies(self.adjacencies, self.dim)
+            self.simplices = simplices_from_adjacencies(self.adjacencies, self.dim)
 
 
 def right_function(Scol0, SC):
@@ -55,6 +49,7 @@ def right_function(Scol0, SC):
     Full S matrix is row normalized.
     Output: S_p block diagonal matrices.
     """
+
     # New Edges block column:
     # loop through all possible pairs of meta vertices to get new edge info
     n_nodes_new = Scol0.shape[1]
@@ -64,6 +59,7 @@ def right_function(Scol0, SC):
         for j in range(i + 1, n_nodes_new):
             Scol1[:, col] = Scol0[:, i] * Scol0[:, j]
             col += 1
+
     # Remove edges that are not in pooled complex (all zero cols)
     Scol1 = np.delete(Scol1, np.argwhere(np.all(Scol1[..., :] == 0, axis=0)), axis=1)
 
