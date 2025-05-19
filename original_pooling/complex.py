@@ -7,7 +7,7 @@ from math import comb
 
 import numpy as np
 
-from boundary import (
+from original_pooling.boundary import (
     Boundaries,
     Simplices,
     adjacency_from_boundaries,

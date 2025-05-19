@@ -1,10 +1,8 @@
-import pickle
-
 import numpy as np
 
-from original_pooling.complex import SComplex, pool_complex
-from original_pooling.originalcomplex import SComplex as OriginalSComplex
-from original_pooling.originalcomplex import pool_complex as original_pool_complex
+from complex import SComplex, pool_complex
+from originalcomplex import SComplex as OriginalSComplex
+from originalcomplex import pool_complex as original_pool_complex
 
 vertex_list = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"]
 edge_list = [
@@ -60,31 +58,8 @@ def test_main():
     np.testing.assert_equal(SC1.boundaries.B2, OSC1.B2, verbose=True)
     np.testing.assert_equal(SC1.boundaries.B3, OSC1.B3, verbose=True)
 
-    SIMP = (
-        SC1.simplices.nodes,
-        SC1.simplices.edges,
-        SC1.simplices.cycles,
-        SC1.simplices.tetra,
-    )
-    B = (
-        SC1.boundaries.B1,
-        SC1.boundaries.B2,
-        SC1.boundaries.B3,
-    )
-    S = (
-        SC1.adjacencies.A0,
-        SC1.adjacencies.A1,
-        SC1.adjacencies.A2,
-        SC1.adjacencies.A3,
-    )
-    with open("./test/fixtures/boundaries.pkl", "wb") as f:
-        pickle.dump(B, f)
-
-    with open("./test/fixtures/adjacencies.pkl", "wb") as f:
-        pickle.dump(S, f)
-
-    with open("./test/fixtures/simplices.pkl", "wb") as f:
-        pickle.dump(SIMP, f)
+    np.save("./test/fixtures/boundaries.npy", SC1.boundaries)
+    np.save("./test/fixtures/simplices.npy", SC1.simplices)
 
     OSC1_pooled = original_pool_complex(OSC1, S0)
     SC1_pooled = pool_complex(SC1, S0)
@@ -93,31 +68,8 @@ def test_main():
     np.testing.assert_equal(SC1_pooled.boundaries.B2, OSC1_pooled.B2, verbose=True)
     np.testing.assert_equal(SC1_pooled.boundaries.B3, OSC1_pooled.B3, verbose=True)
 
-    SIMP = (
-        SC1_pooled.simplices.nodes,
-        SC1_pooled.simplices.edges,
-        SC1_pooled.simplices.cycles,
-        SC1_pooled.simplices.tetra,
-    )
-    B = (
-        SC1_pooled.boundaries.B1,
-        SC1_pooled.boundaries.B2,
-        SC1_pooled.boundaries.B3,
-    )
-    S = (
-        SC1_pooled.adjacencies.A0,
-        SC1_pooled.adjacencies.A1,
-        SC1_pooled.adjacencies.A2,
-        SC1_pooled.adjacencies.A3,
-    )
-    with open("./test/fixtures/pooled_boundaries.pkl", "wb") as f:
-        pickle.dump(B, f)
-
-    with open("./test/fixtures/pooled_adjacencies.pkl", "wb") as f:
-        pickle.dump(S, f)
-
-    with open("./test/fixtures/pooled_simplices.pkl", "wb") as f:
-        pickle.dump(S, f)
+    np.save("./test/fixtures/pooled_boundaries.npy", SC1_pooled.boundaries)
+    np.save("./test/fixtures/pooled_simplices.npy", SC1_pooled.simplices)
 
     if SC1_pooled.boundaries.B1 is not None:
         np.testing.assert_allclose(
