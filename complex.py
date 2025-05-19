@@ -89,6 +89,7 @@ def right_function(Scol0, SC):
                         Scol0b[:, i] * Scol0b[:, j] * Scol0b[:, k] * Scol0b[:, l]
                     )
                     col += 1
+
     # Remove tetra that are not in pooled complex (all zero cols)
     Scol3 = np.delete(Scol3, np.argwhere(np.all(Scol3[..., :] == 0, axis=0)), axis=1)
     # Normalize rows of S and select the diagonal sub-blocks for pooling
