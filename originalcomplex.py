@@ -1,8 +1,7 @@
 """
 Simplicial Complex class with auxillary functions for pooling
-
-Sarah McGuire 2022
 """
+
 import string
 from math import comb
 

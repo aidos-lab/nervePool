@@ -6,6 +6,7 @@ Sarah McGuire 2022
 from math import comb
 
 import numpy as np
+import torch
 
 from boundary import (
     Boundaries,
@@ -49,6 +50,7 @@ def right_function(Scol0, SC):
     Full S matrix is row normalized.
     Output: S_p block diagonal matrices.
     """
+    Scol0 = Scol0.numpy()
 
     # New Edges block column:
     # loop through all possible pairs of meta vertices to get new edge info
@@ -127,6 +129,13 @@ def right_function(Scol0, SC):
         S3_norm = Srow3_norm[:, Scol0.shape[1] + Scol1.shape[1] + Scol2.shape[1] :]
     else:
         S3_norm = None
+
+    if S1_norm is not None:
+        S1_norm = torch.tensor(S1_norm, dtype=torch.float)
+    if S2_norm is not None:
+        S2_norm = torch.tensor(S2_norm, dtype=torch.float)
+    if S3_norm is not None:
+        S3_norm = torch.tensor(S3_norm, dtype=torch.float)
     return S1_norm, S2_norm, S3_norm
 
 
@@ -187,7 +196,7 @@ def down_function(S0, SC):
         S03 = None
 
     col0 = np.vstack([S01, S02, S03])
-    return col0
+    return torch.tensor(col0)
 
 
 def pool_complex(SC, S0):
@@ -216,11 +225,11 @@ def pool_complex(SC, S0):
 
     BList = []
     if S1 is not None:
-        BList.append(np.abs(np.matmul(np.matmul(S0.T, SC.boundaries.B1), S1)))
+        BList.append(torch.abs(torch.matmul(torch.matmul(S0.T, SC.boundaries.B1), S1)))
     if S2 is not None:
-        BList.append(np.abs(np.matmul(np.matmul(S1.T, SC.boundaries.B2), S2)))
+        BList.append(torch.abs(torch.matmul(torch.matmul(S1.T, SC.boundaries.B2), S2)))
     if S3 is not None:
-        BList.append(np.abs(np.matmul(np.matmul(S2.T, SC.boundaries.B3), S3)))
+        BList.append(torch.abs(torch.matmul(torch.matmul(S2.T, SC.boundaries.B3), S3)))
 
     # Use new boundary matrices to construct pooled complex ... UNFINISHED
     Bds_new = tuple(BList)

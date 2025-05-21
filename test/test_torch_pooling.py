@@ -1,8 +1,9 @@
 import pickle
 
 import torch
+from torch._prims_common import dtype_or_default
 
-from complex import SComplex
+from complex import SComplex, pool_complex
 
 #######################################################################
 ### Load fixtures
@@ -98,3 +99,34 @@ def test_create_torch_sc_torch():
         pass
     else:
         raise ValueError("A3")
+
+
+def test_pool_torch_complex():
+    # Cluster Assignments
+    S0 = torch.tensor(
+        [
+            [1, 0, 0, 0],
+            [1, 0, 0, 0],
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 1],
+            [0, 0, 0, 1],
+        ],
+        dtype=torch.float,
+    )
+    sc_torch = SComplex(simplices=simplices)
+    sc_torch_pooled = pool_complex(sc_torch, S0)
+
+    # Check that the new SC is the same as the numpy version.
+    # boundaries = [B1, B2, B3]
+    torch.equal(sc_torch_pooled.boundaries.B1, boundaries_pooled[0])
+    torch.equal(sc_torch_pooled.boundaries.B2, boundaries_pooled[1])
+    assert sc_torch_pooled.boundaries.B3 == boundaries_pooled[2]
+
+    pass
