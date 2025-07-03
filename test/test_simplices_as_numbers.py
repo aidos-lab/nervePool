@@ -54,10 +54,12 @@ with open("./test/fixtures/pooled_adjacencies.pkl", "rb") as f:
             pooled_adjacencies.append(None)
 
 
-# def test_create_torch_sc_torch():
-#     """Tests if the torch version outputs the same values as the numpy version."""
-#     number_simplices = letter_simplices_to_numbers(simplices)
-#     sc_torch = SComplex(simplices=number_simplices)
+def test_create_torch_sc_torch():
+    """Tests if the torch version outputs the same values as the numpy version."""
+    number_simplices = letter_simplices_to_numbers(simplices)
+    sc_torch = SComplex(simplices=number_simplices)
+
+
 #
 #     # Check that the new SC is the same as the numpy version.
 #     # boundaries = [B1, B2, B3]

@@ -2,6 +2,7 @@ import pickle
 
 import torch
 
+from boundary import letter_simplices_to_numbers
 from complex import SComplex, pool_complex
 
 #######################################################################
@@ -55,7 +56,8 @@ with open("./test/fixtures/pooled_adjacencies.pkl", "rb") as f:
 
 def test_create_torch_sc_torch():
     """Tests if the torch version outputs the same values as the numpy version."""
-    sc_torch = SComplex(simplices=simplices)
+    number_simplices = letter_simplices_to_numbers(simplices)
+    sc_torch = SComplex(simplices=number_simplices)
 
     # Check that the new SC is the same as the numpy version.
     # boundaries = [B1, B2, B3]
@@ -120,7 +122,9 @@ def test_pool_torch_complex():
         ],
         dtype=torch.float,
     )
-    sc_torch = SComplex(simplices=simplices)
+
+    number_simplices = letter_simplices_to_numbers(simplices)
+    sc_torch = SComplex(simplices=number_simplices)
     sc_torch_pooled = pool_complex(sc_torch, S0)
 
     # Check that the new SC is the same as the numpy version.

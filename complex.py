@@ -153,8 +153,8 @@ def down_function(S0, SC):
     S03 = []
     for e in SC.simplices.edges:
         edge_arr = np.zeros(n_new)
-        v0 = SC.simplices.nodes.index(e[0])
-        v1 = SC.simplices.nodes.index(e[1])
+        v0 = SC.simplices.nodes.index([e[0]])
+        v1 = SC.simplices.nodes.index([e[1]])
         for v in range(n_new):
             if S0[v0, v] > 0 or S0[v1, v] > 0:
                 edge_arr[v] = 1
@@ -162,9 +162,9 @@ def down_function(S0, SC):
 
     for c in SC.simplices.cycles:
         cyc_arr = np.zeros(n_new)
-        v0 = SC.simplices.nodes.index(c[0])
-        v1 = SC.simplices.nodes.index(c[1])
-        v2 = SC.simplices.nodes.index(c[2])
+        v0 = SC.simplices.nodes.index([c[0]])
+        v1 = SC.simplices.nodes.index([c[1]])
+        v2 = SC.simplices.nodes.index([c[2]])
         for v in range(n_new):
             if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0:
                 cyc_arr[v] = 1
@@ -172,10 +172,10 @@ def down_function(S0, SC):
 
     for t in SC.simplices.tetra:
         t_arr = np.zeros(n_new)
-        v0 = SC.simplices.nodes.index(t[0])
-        v1 = SC.simplices.nodes.index(t[1])
-        v2 = SC.simplices.nodes.index(t[2])
-        v3 = SC.simplices.nodes.index(t[3])
+        v0 = SC.simplices.nodes.index([t[0]])
+        v1 = SC.simplices.nodes.index([t[1]])
+        v2 = SC.simplices.nodes.index([t[2]])
+        v3 = SC.simplices.nodes.index([t[3]])
         for v in range(n_new):
             if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0 or S0[v3, v] > 0:
                 t_arr[v] = 1

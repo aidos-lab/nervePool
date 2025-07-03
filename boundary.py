@@ -239,9 +239,9 @@ def boundary_from_simplices(simplices: Simplices, dim) -> Boundaries:
     B0 = None
     if dim >= 1:
         B1 = torch.zeros([len(simplices.nodes), len(simplices.edges)])
-        for v0 in range(len(simplices.nodes)):
-            for v1 in range(len(simplices.nodes)):
-                simplex_up = simplices.nodes[v0] + simplices.nodes[v1]
+        for v0 in simplices.nodes:
+            for v1 in simplices.nodes:
+                simplex_up = [v0, v1]
                 if simplex_up in simplices.edges:
                     up_idx = simplices.edges.index(simplex_up)
                     B1[v0, up_idx] = 1
@@ -253,12 +253,10 @@ def boundary_from_simplices(simplices: Simplices, dim) -> Boundaries:
     if dim >= 2:
         B2 = torch.zeros([len(simplices.edges), len(simplices.cycles)])
         for cyc in range(len(simplices.cycles)):
-            v1 = simplices.cycles[cyc][0]
-            v2 = simplices.cycles[cyc][1]
-            v3 = simplices.cycles[cyc][2]
-            e1_idx = simplices.edges.index(v1 + v2)
-            e2_idx = simplices.edges.index(v2 + v3)
-            e3_idx = simplices.edges.index(v1 + v3)
+            v1, v2, v3 = simplices.cycles[cyc]
+            e1_idx = simplices.edges.index([v1, v2])
+            e2_idx = simplices.edges.index([v2, v3])
+            e3_idx = simplices.edges.index([v1, v3])
             B2[e1_idx, cyc] = 1
             B2[e2_idx, cyc] = 1
             B2[e3_idx, cyc] = 1
@@ -269,14 +267,12 @@ def boundary_from_simplices(simplices: Simplices, dim) -> Boundaries:
     if dim >= 3:
         B3 = torch.zeros([len(simplices.cycles), len(simplices.tetra)])
         for t in range(len(simplices.tetra)):
-            v1 = simplices.tetra[t][0]
-            v2 = simplices.tetra[t][1]
-            v3 = simplices.tetra[t][2]
-            v4 = simplices.tetra[t][3]
-            c1_idx = simplices.cycles.index(v1 + v2 + v3)
-            c2_idx = simplices.cycles.index(v1 + v2 + v4)
-            c3_idx = simplices.cycles.index(v2 + v3 + v4)
-            c4_idx = simplices.cycles.index(v1 + v3 + v4)
+            v1, v2, v3, v4 = simplices.tetra[t]
+            c1_idx = simplices.cycles.index([v1, v2, v3])
+            c2_idx = simplices.cycles.index([v1, v2, v4])
+            c3_idx = simplices.cycles.index([v2, v3, v4])
+            c4_idx = simplices.cycles.index([v1, v3, v4])
+
             B3[c1_idx, t] = 1
             B3[c2_idx, t] = 1
             B3[c3_idx, t] = 1
