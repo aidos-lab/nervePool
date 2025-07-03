@@ -28,6 +28,32 @@ class Boundaries:
     B3: torch.Tensor | None = None
 
 
+def letter_simplices_to_numbers(all_simplices):
+    total = []
+    for simplices in all_simplices:
+        simplex_res = []
+        for simplex in simplices:
+            s_res = []
+            for s in simplex:
+                s_res.append(string.ascii_lowercase.index(s))
+            simplex_res.append(s_res)
+        total.append(simplex_res)
+    return total
+
+
+def number_simplices_to_letters(all_simplices):
+    total = []
+    for simplices in all_simplices:
+        simplex_res = []
+        for simplex in simplices:
+            s_res = []
+            for s in simplex:
+                s_res.append(string.ascii_lowercase[s])
+            simplex_res.append("".join(s_res))
+        total.append(simplex_res)
+    return total
+
+
 def adjacency_from_boundaries(boundaries: Boundaries, dim):
     if dim >= 1:
         D0 = torch.diag(torch.sum(torch.abs(boundaries.B1), axis=1))

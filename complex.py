@@ -3,6 +3,7 @@ Simplicial Complex class with auxillary functions for pooling
 Sarah McGuire 2022
 """
 
+import string
 from math import comb
 
 import numpy as np
@@ -40,7 +41,7 @@ class SComplex:
             # TODO: Make boundaries non-oriented.
 
             self.adjacencies = adjacency_from_boundaries(self.boundaries, self.dim)
-            self.simplices = simplices_from_adjacencies(self.adjacencies, self.dim)
+            # self.simplices = simplices_from_adjacencies(self.adjacencies, self.dim)
 
 
 def right_function(Scol0, SC):

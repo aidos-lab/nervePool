@@ -1,7 +1,6 @@
 import pickle
 
 import torch
-from torch._prims_common import dtype_or_default
 
 from complex import SComplex, pool_complex
 
@@ -87,6 +86,7 @@ def test_create_torch_sc_torch():
     ):
         torch.equal(adjacencies[2], sc_torch.adjacencies.A2)
     elif adjacencies[2] is None and sc_torch.adjacencies.A2 is None:
+
         pass
     else:
         raise ValueError("A2")

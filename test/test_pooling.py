@@ -2,6 +2,7 @@ import pickle
 
 import numpy as np
 
+from boundary import letter_simplices_to_numbers
 from original_pooling.complex import SComplex, pool_complex
 from original_pooling.originalcomplex import SComplex as OriginalSComplex
 from original_pooling.originalcomplex import pool_complex as original_pool_complex
@@ -54,6 +55,7 @@ simplices = list([vertex_list, edge_list, triangle_list, tetrahedron_list])
 
 def test_main():
     OSC1 = OriginalSComplex(simplices)
+    # number_simplices = letter_simplices_to_numbers(simplices)
     SC1 = SComplex(simplices=simplices)
 
     np.testing.assert_equal(SC1.boundaries.B1, OSC1.B1, verbose=True)
