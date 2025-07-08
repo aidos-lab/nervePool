@@ -26,22 +26,20 @@ class SComplex:
 
         # List of simplices
         if simplices is not None:
-            self.dim = len(simplices) - 1
-            self.simplices = Simplices(*simplices)
-            self.boundaries = boundary_from_simplices(self.simplices, self.dim)
-            self.adjacencies = adjacency_from_boundaries(self.boundaries, self.dim)
+            if isinstance(simplices, Simplices):
+                self.simplices = simplices
+            else:
+                self.simplices = Simplices(*simplices)
+            self.boundaries = boundary_from_simplices(self.simplices)
+            self.adjacencies = adjacency_from_boundaries(self.boundaries)
 
             # TODO: Make boundaries non-oriented.
 
         # Array of boundary maps
         if boundaries is not None:
-            self.dim = len(boundaries)
             self.boundaries = Boundaries(*boundaries)
-
             # TODO: Make boundaries non-oriented.
-
-            self.adjacencies = adjacency_from_boundaries(self.boundaries, self.dim)
-            # self.simplices = simplices_from_adjacencies(self.adjacencies, self.dim)
+            self.adjacencies = adjacency_from_boundaries(self.boundaries)
 
 
 def right_function(Scol0, SC):
@@ -81,21 +79,25 @@ def right_function(Scol0, SC):
 
     # New Tetra block column:
     # loop through all possible quadruplets of meta vertices to get new tetra info
-    Scol0b = Scol0a[len(SC.simplices.cycles) :, :]
-    Scol3 = np.zeros([Scol0b.shape[0], comb(n_nodes_new, 4)])
-    col = 0
-    for i in range(0, n_nodes_new):
-        for j in range(i + 1, n_nodes_new):
-            for k in range(j + 1, n_nodes_new):
-                for l in range(k + 1, n_nodes_new):
-                    Scol3[:, col] = (
-                        Scol0b[:, i] * Scol0b[:, j] * Scol0b[:, k] * Scol0b[:, l]
-                    )
-                    col += 1
+    if SC.simplices.cycles is not None:
+        Scol0b = Scol0a[len(SC.simplices.cycles) :, :]
+        Scol3 = np.zeros([Scol0b.shape[0], comb(n_nodes_new, 4)])
+        col = 0
+        for i in range(0, n_nodes_new):
+            for j in range(i + 1, n_nodes_new):
+                for k in range(j + 1, n_nodes_new):
+                    for l in range(k + 1, n_nodes_new):
+                        Scol3[:, col] = (
+                            Scol0b[:, i] * Scol0b[:, j] * Scol0b[:, k] * Scol0b[:, l]
+                        )
+                        col += 1
+        # Remove tetra that are not in pooled complex (all zero cols)
+        Scol3 = np.delete(
+            Scol3, np.argwhere(np.all(Scol3[..., :] == 0, axis=0)), axis=1
+        )
 
-    # Remove tetra that are not in pooled complex (all zero cols)
-    Scol3 = np.delete(Scol3, np.argwhere(np.all(Scol3[..., :] == 0, axis=0)), axis=1)
     # Normalize rows of S and select the diagonal sub-blocks for pooling
+    breakpoint()
     if SC.dim >= 1 and Scol1.size != 0:
         S1 = Scol1[: len(SC.simplices.edges), :]
         Srow1 = np.concatenate((Scol0[: len(SC.simplices.edges)], S1), axis=1)
@@ -151,52 +153,60 @@ def down_function(S0, SC):
     S01 = []
     S02 = []
     S03 = []
+    S = []
     for e in SC.simplices.edges:
         edge_arr = np.zeros(n_new)
-        v0 = SC.simplices.nodes.index([e[0]])
-        v1 = SC.simplices.nodes.index([e[1]])
+        v0 = SC.simplices.nodes.tolist().index(e[0].item())
+        v1 = SC.simplices.nodes.tolist().index(e[1].item())
         for v in range(n_new):
             if S0[v0, v] > 0 or S0[v1, v] > 0:
                 edge_arr[v] = 1
         S01.append(edge_arr)
+    S.append(np.array(S01))
 
-    for c in SC.simplices.cycles:
-        cyc_arr = np.zeros(n_new)
-        v0 = SC.simplices.nodes.index([c[0]])
-        v1 = SC.simplices.nodes.index([c[1]])
-        v2 = SC.simplices.nodes.index([c[2]])
-        for v in range(n_new):
-            if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0:
-                cyc_arr[v] = 1
-        S02.append(cyc_arr)
+    if SC.simplices.cycles is not None:
+        for c in SC.simplices.cycles:
+            cyc_arr = np.zeros(n_new)
+            v0 = SC.simplices.nodes.tolist().index(c[0].item())
+            v1 = SC.simplices.nodes.tolist().index(c[1].item())
+            v2 = SC.simplices.nodes.tolist().index(c[2].item())
+            for v in range(n_new):
+                if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0:
+                    cyc_arr[v] = 1
+            S02.append(cyc_arr)
+        S.append(np.array(S02))
 
-    for t in SC.simplices.tetra:
-        t_arr = np.zeros(n_new)
-        v0 = SC.simplices.nodes.index([t[0]])
-        v1 = SC.simplices.nodes.index([t[1]])
-        v2 = SC.simplices.nodes.index([t[2]])
-        v3 = SC.simplices.nodes.index([t[3]])
-        for v in range(n_new):
-            if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0 or S0[v3, v] > 0:
-                t_arr[v] = 1
-        S03.append(t_arr)
+    if SC.simplices.tetra is not None:
+        for t in SC.simplices.tetra:
+            t_arr = np.zeros(n_new)
+            v0 = SC.simplices.nodes.tolist().index(t[0].item())
+            v1 = SC.simplices.nodes.tolist().index(t[1].item())
+            v2 = SC.simplices.nodes.tolist().index(t[2].item())
+            v3 = SC.simplices.nodes.tolist().index(t[3].item())
+            for v in range(n_new):
+                if S0[v0, v] > 0 or S0[v1, v] > 0 or S0[v2, v] > 0 or S0[v3, v] > 0:
+                    t_arr[v] = 1
+            S03.append(t_arr)
+        S.append(np.array(S03))
 
-    if SC.dim >= 1:
-        S01 = np.array(S01)
-    else:
-        S01 = None
+    # if SC.dim >= 1:
+    #     S01 = np.array(S01)
+    # else:
+    #     S01 = None
+    #
+    # if SC.dim >= 2:
+    #     S02 = np.array(S02)
+    # else:
+    #     S02 = None
+    #
+    # if SC.dim >= 3:
+    #     S03 = np.array(S03)
+    # else:
+    #     S03 = None
 
-    if SC.dim >= 2:
-        S02 = np.array(S02)
-    else:
-        S02 = None
-
-    if SC.dim >= 3:
-        S03 = np.array(S03)
-    else:
-        S03 = None
-
-    col0 = np.vstack([S01, S02, S03])
+    # col0 = np.vstack([S01, S02, S03])
+    print(S)
+    col0 = np.vstack(S)
     return torch.tensor(col0)
 
 

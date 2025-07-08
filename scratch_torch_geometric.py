@@ -4,12 +4,12 @@ from torch_geometric.loader import DataLoader
 from torch_geometric.utils import to_dense_adj, to_dense_batch
 
 from complex import SComplex, pool_complex
-from transforms import EdgeIndexToBoundaryTransform
+from transforms import EdgeIndexToSimplicesTransform
 
 ds = TUDataset(
     root="./data",
-    name="DD",
-    transform=EdgeIndexToBoundaryTransform(max_num_nodes=700, max_num_edges=2000),
+    name="Letter-low",
+    transform=EdgeIndexToSimplicesTransform(),
     use_node_attr=True,
     cleaned=False,
     force_reload=True,
@@ -24,16 +24,10 @@ dl = DataLoader(ds, batch_size=2)
 
 
 for data in dl:
-    # DataBatch(x=[32, 700, 4], adj=[32, 700, 700], mask=[32, 700], y=[32, 1])
-    # x, mask = to_dense_batch(data.x, data.batch, max_num_nodes=200)
-    # adj = to_dense_adj(data.edge_index, data.batch, max_num_nodes=200)
-    # print(x.shape)
-    # print(mask.shape)
-    # print(adj.shape)
-    s = torch.zeros(size=(700, 64))
-    for boundaries in data.B1:
-        sc_torch = SComplex(boundaries=boundaries)
+    for simp in data.simplices:
+        s = torch.zeros(size=(len(simp.nodes), 4))
+        s[:, 0] = 1
+        sc_torch = SComplex(simplices=simp)
         sc_torch_pooled = pool_complex(sc_torch, s)
-    breakpoint()
-
-    break
+        print(sc_torch_pooled)
+        breakpoint()

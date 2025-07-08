@@ -54,18 +54,18 @@ def number_simplices_to_letters(all_simplices):
     return total
 
 
-def adjacency_from_boundaries(boundaries: Boundaries, dim):
-    if dim >= 1:
+def adjacency_from_boundaries(boundaries: Boundaries):
+    if boundaries.B1 is not None:
         D0 = torch.diag(torch.sum(torch.abs(boundaries.B1), axis=1))
         A0 = torch.abs(D0 - torch.matmul(boundaries.B1, boundaries.B1.T))
     else:
         A0 = None
-    if dim >= 2:
+    if boundaries.B2 is not None:
         D1 = torch.diag(torch.sum(torch.abs(boundaries.B2), axis=1))
         A1 = torch.abs(D1 - torch.matmul(boundaries.B2, boundaries.B2.T))
     else:
         A1 = None
-    if dim >= 3:
+    if boundaries.B3 is not None:
         D2 = torch.diag(torch.sum(torch.abs(boundaries.B3), axis=1))
         A2 = torch.abs(D2 - torch.matmul(boundaries.B3, boundaries.B3.T))
     else:
@@ -92,7 +92,7 @@ def constructAdj(scomplex):
     return scomplex
 
 
-def simplices_from_adjacencies(adjacencies, dim):
+def simplices_from_adjacencies(adjacencies):
     """
     Use adjacency matrices to construct the corresponding list of simplices which represent the complex
     """
@@ -102,7 +102,7 @@ def simplices_from_adjacencies(adjacencies, dim):
     nodes = [str(x) for x in (string.ascii_lowercase[0:n_nodes])]
 
     # Build edge list
-    if dim >= 1:
+    if adjacencies.A0 is not None:
         edges = []
         for i in range(n_nodes):
             for j in range(i + 1, n_nodes):
@@ -113,7 +113,7 @@ def simplices_from_adjacencies(adjacencies, dim):
         edges = None
 
     # Build triangle list  (cycles)
-    if dim >= 2:
+    if adjacencies.A1 is not None:
         cycles = []
         for i in range(n_edges):
             for j in range(i + 1, n_edges):
@@ -134,7 +134,7 @@ def simplices_from_adjacencies(adjacencies, dim):
         cycles = None
 
     # Build tetrahedra list
-    if dim >= 3:
+    if adjacencies.A2 is not None:
         tetra = []
         for i in range(n_cycles):
             for j in range(i + 1, n_cycles):
@@ -235,22 +235,22 @@ def buildSimplexListADJ(scomplex):
     return scomplex
 
 
-def boundary_from_simplices(simplices: Simplices, dim) -> Boundaries:
+def boundary_from_simplices(simplices: Simplices) -> Boundaries:
     B0 = None
-    if dim >= 1:
+    if simplices.edges is not None:
         B1 = torch.zeros([len(simplices.nodes), len(simplices.edges)])
         for v0 in simplices.nodes:
             for v1 in simplices.nodes:
                 simplex_up = [v0, v1]
-                if simplex_up in simplices.edges:
-                    up_idx = simplices.edges.index(simplex_up)
+                if simplex_up in simplices.edges.tolist():
+                    up_idx = simplices.edges.tolist().index(simplex_up)
                     B1[v0, up_idx] = 1
                     B1[v1, up_idx] = 1
     else:
         B1 = None
 
     # Build B2
-    if dim >= 2:
+    if simplices.cycles is not None:
         B2 = torch.zeros([len(simplices.edges), len(simplices.cycles)])
         for cyc in range(len(simplices.cycles)):
             v1, v2, v3 = simplices.cycles[cyc]
@@ -264,7 +264,7 @@ def boundary_from_simplices(simplices: Simplices, dim) -> Boundaries:
         B2 = None
 
     # Build B3
-    if dim >= 3:
+    if simplices.tetra is not None:
         B3 = torch.zeros([len(simplices.cycles), len(simplices.tetra)])
         for t in range(len(simplices.tetra)):
             v1, v2, v3, v4 = simplices.tetra[t]
